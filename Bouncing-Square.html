@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bouncing Square with Notes</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const square = {
+            x: canvas.width / 2 - 25,
+            y: canvas.height / 2 - 25,
+            size: 50,
+            speedX: 5,
+            speedY: 3,
+        };
+
+        const notePlayer = new AudioContext();
+        
+        function drawSquare() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(square.x, square.y, square.size, square.size);
+        }
+
+        function playRandomNote() {
+            const frequency = Math.random() * (500 - 100) + 100; // Random frequency between 100 and 500
+            const oscillator = notePlayer.createOscillator();
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine'; // Sine wave
+            oscillator.connect(notePlayer.destination);
+            oscillator.start();
+            oscillator.stop(notePlayer.currentTime + 0.2); // Play for 0.2 seconds
+        }
+
+        function update() {
+            square.x += square.speedX;
+            square.y += square.speedY;
+
+            if (square.x + square.size > canvas.width || square.x < 0) {
+                square.speedX = -square.speedX;
+                playRandomNote();
+            }
+
+            if (square.y + square.size > canvas.height || square.y < 0) {
+                square.speedY = -square.speedY;
+                playRandomNote();
+            }
+        }
+
+        function animate() {
+            update();
+            drawSquare();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
